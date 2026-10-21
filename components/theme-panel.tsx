@@ -1,10 +1,10 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, Moon, Palette, Settings2, Sun, Type } from 'lucide-react';
+import { Check, Layers2, Moon, Palette, Settings2, Sun, Type, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-type ThemeMode = 'light' | 'dark';
+type ThemeMode = 'light' | 'dark' | 'blend';
 
 type ThemeState = {
   mode: ThemeMode;
@@ -48,19 +48,15 @@ const hexToRgba = (hex: string, alpha: number) => {
 };
 
 function readStoredTheme(): ThemeState {
-  if (typeof window === 'undefined') {
-    return defaultTheme;
-  }
+  if (typeof window === 'undefined') return defaultTheme;
 
   try {
     const saved = window.localStorage.getItem('ahts-theme');
-    if (!saved) {
-      return defaultTheme;
-    }
+    if (!saved) return defaultTheme;
 
     const parsed = JSON.parse(saved) as Partial<ThemeState>;
     return {
-      mode: parsed.mode === 'dark' ? 'dark' : 'light',
+      mode: parsed.mode === 'dark' || parsed.mode === 'blend' ? parsed.mode : 'light',
       accent: parsed.accent ?? defaultTheme.accent,
       font: parsed.font ?? defaultTheme.font,
       palette: parsed.palette ?? defaultTheme.palette,
@@ -72,19 +68,27 @@ function readStoredTheme(): ThemeState {
 
 function applyTheme(theme: ThemeState) {
   const root = document.documentElement;
+  const isLight = theme.mode === 'light';
+  const isBlend = theme.mode === 'blend';
+
   root.style.setProperty('--accent-color', theme.accent);
-  root.style.setProperty('--accent-soft', hexToRgba(theme.accent, 0.12));
+  root.style.setProperty('--accent-soft', hexToRgba(theme.accent, isLight ? 0.12 : 0.18));
   root.style.setProperty('--navy-color', theme.accent);
   root.style.setProperty('--navy-soft', hexToRgba(theme.accent, 0.14));
   root.style.setProperty('--font-body', `${theme.font}, sans-serif`);
   root.style.setProperty('--font-display', `${theme.font}, sans-serif`);
-  root.style.setProperty('--page-bg', theme.mode === 'dark' ? '#020817' : '#f8fafc');
-  root.style.setProperty('--page-surface', theme.mode === 'dark' ? 'rgba(15, 23, 42, 0.75)' : 'rgba(255,255,255,0.7)');
-  root.style.setProperty('--page-strong', theme.mode === 'dark' ? theme.accent : '#e0f2fe');
-  root.style.setProperty('--text-primary', theme.mode === 'dark' ? '#e2e8f0' : '#0f172a');
-  root.style.setProperty('--text-muted', theme.mode === 'dark' ? '#cbd5e1' : '#475569');
-  root.style.setProperty('--heading-stack', theme.mode === 'dark' ? 'rgba(15,23,42,0.95)' : 'rgba(255,255,255,0.65)');
+  root.style.setProperty('--page-bg', isLight ? '#f8fafc' : isBlend ? `color-mix(in srgb, ${theme.accent} 14%, #080b14)` : '#080b14');
+  root.style.setProperty('--page-surface', isLight ? 'rgba(255, 255, 255, 0.82)' : isBlend ? `color-mix(in srgb, ${theme.accent} 15%, #111827)` : 'rgba(18, 22, 35, 0.92)');
+  root.style.setProperty('--page-strong', isLight ? '#e0f2fe' : theme.accent);
+  root.style.setProperty('--text-primary', isLight ? '#0f172a' : '#f1f5f9');
+  root.style.setProperty('--text-muted', isLight ? '#475569' : '#a1aabd');
+  root.style.setProperty('--border-color', isLight ? 'rgba(148, 163, 184, 0.24)' : hexToRgba(theme.accent, 0.2));
+  root.style.setProperty('--heading-stack', isLight ? 'rgba(255, 255, 255, 0.76)' : 'rgba(18, 22, 35, 0.96)');
+  root.style.setProperty('--shadow-soft', isLight ? '0 20px 60px rgba(15, 23, 42, 0.1)' : '0 20px 60px rgba(0, 0, 0, 0.28)');
+  root.style.colorScheme = isLight ? 'light' : 'dark';
   root.classList.toggle('dark', theme.mode === 'dark');
+  root.classList.toggle('blend', isBlend);
+  document.body.style.color = 'var(--text-primary)';
   window.localStorage.setItem('ahts-theme', JSON.stringify(theme));
 }
 
@@ -102,87 +106,102 @@ export function ThemePanel() {
     applyTheme(theme);
   }, [theme]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [isOpen]);
+
   return (
-    <div className="fixed right-4 top-4 z-50 md:right-6 md:top-6">
+    <div className="theme-settings">
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex items-center gap-2 rounded-full border border-white/60 bg-white/80 px-4 py-2 text-sm font-semibold text-slate-800 shadow-lg backdrop-blur-md transition hover:-translate-y-0.5"
+        aria-expanded={isOpen}
+        aria-controls="theme-settings-panel"
+        className="theme-settings-button"
       >
-        {theme.mode === 'dark' ? <Moon size={16} /> : <Sun size={16} />}
+        {theme.mode === 'light' ? <Sun size={15} /> : theme.mode === 'dark' ? <Moon size={15} /> : <Layers2 size={15} />}
         <span>Settings</span>
-        <Settings2 size={16} className="text-slate-500" />
+        <Settings2 size={14} />
       </button>
 
       <AnimatePresence>
         {isOpen ? (
           <motion.aside
-            initial={{ opacity: 0, y: -12, scale: 0.96 }}
+            id="theme-settings-panel"
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.96 }}
-            transition={{ duration: 0.2 }}
-            className="mt-3 w-[300px] rounded-3xl border border-slate-200/70 bg-white/90 p-4 shadow-2xl backdrop-blur-xl"
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.18 }}
+            className="theme-settings-panel"
+            aria-label="Theme settings"
           >
-            <div className="mb-4 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <Palette size={16} className="text-cyan-500" />
-                Theme Studio
-              </div>
-              <button
-                type="button"
-                onClick={() => setTheme((prev) => ({ ...prev, mode: prev.mode === 'dark' ? 'light' : 'dark' }))}
-                className="flex items-center gap-2 rounded-full border border-slate-200 px-2 py-1 text-xs font-medium text-slate-600"
-              >
-                {theme.mode === 'dark' ? <Sun size={12} /> : <Moon size={12} />}
-                {theme.mode === 'dark' ? 'Light' : 'Dark'}
+            <div className="theme-settings-heading">
+              <div className="theme-settings-title"><Palette size={16} /> Theme settings</div>
+              <button type="button" className="theme-settings-close" onClick={() => setIsOpen(false)} aria-label="Close settings">
+                <X size={17} />
               </button>
             </div>
 
-            <div className="space-y-5">
-              <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Palette</p>
-                <div className="grid grid-cols-5 gap-2">
-                  {accentPresets.map((preset) => (
-                    <button
-                      key={preset.name}
-                      type="button"
-                      title={preset.name}
-                      onClick={() => setTheme((prev) => ({ ...prev, accent: preset.value, palette: preset.name }))}
-                      className="flex h-10 items-center justify-center rounded-xl border transition hover:scale-[1.02]"
-                      style={{
-                        background: preset.value,
-                        borderColor: theme.accent === preset.value ? '#0f172a' : 'transparent',
-                        boxShadow: theme.accent === preset.value ? '0 0 0 2px rgba(15,23,42,0.12)' : 'none',
-                      }}
-                    >
-                      {theme.accent === preset.value ? <Check size={14} className="text-white" /> : null}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div className="theme-settings-modes" aria-label="Color theme">
+              {([
+                { mode: 'light', label: 'Light', Icon: Sun },
+                { mode: 'dark', label: 'Dark', Icon: Moon },
+                { mode: 'blend', label: 'Blend', Icon: Layers2 },
+              ] as const).map(({ mode, label, Icon }) => (
+                <button
+                  key={mode}
+                  type="button"
+                  onClick={() => setTheme((prev) => ({ ...prev, mode }))}
+                  aria-pressed={theme.mode === mode}
+                  className={`theme-mode-option${theme.mode === mode ? ' theme-mode-active' : ''}`}
+                >
+                  <Icon size={14} />
+                  {label}
+                </button>
+              ))}
+            </div>
 
-              <div>
-                <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                  <Type size={12} />
-                  Typography
-                </div>
-                <div className="space-y-2">
-                  {fontPresets.map((font) => (
-                    <button
-                      key={font.label}
-                      type="button"
-                      onClick={() => setTheme((prev) => ({ ...prev, font: font.value }))}
-                      className={`flex w-full items-center justify-between rounded-xl border px-3 py-2 text-left text-sm transition ${
-                        theme.font === font.value
-                          ? 'border-slate-900 bg-slate-900 text-white'
-                          : 'border-slate-200 bg-slate-50 text-slate-700 hover:border-slate-300'
-                      }`}
-                    >
-                      <span>{font.label}</span>
-                      {theme.font === font.value ? <Check size={14} /> : null}
-                    </button>
-                  ))}
-                </div>
+            <div className="theme-settings-section">
+              <p className="theme-settings-label">Accent color</p>
+              <div className="theme-settings-palettes">
+                {accentPresets.map((preset) => (
+                  <button
+                    key={preset.name}
+                    type="button"
+                    title={preset.name}
+                    aria-label={preset.name}
+                    aria-pressed={theme.accent === preset.value}
+                    onClick={() => setTheme((prev) => ({ ...prev, accent: preset.value, palette: preset.name }))}
+                    className="theme-palette-option"
+                    style={{ background: preset.value }}
+                  >
+                    {theme.accent === preset.value ? <Check size={14} className="text-white" /> : null}
+                  </button>
+                ))}
+              </div>
+              <p className="theme-settings-selected">{theme.palette}</p>
+            </div>
+
+            <div className="theme-settings-section">
+              <div className="theme-settings-label theme-settings-type"><Type size={13} /> Typography</div>
+              <div className="theme-font-options">
+                {fontPresets.map((font) => (
+                  <button
+                    key={font.value}
+                    type="button"
+                    onClick={() => setTheme((prev) => ({ ...prev, font: font.value }))}
+                    aria-pressed={theme.font === font.value}
+                    className={`theme-font-option${theme.font === font.value ? ' theme-font-active' : ''}`}
+                  >
+                    <span>{font.label}</span>
+                    {theme.font === font.value ? <Check size={14} /> : null}
+                  </button>
+                ))}
               </div>
             </div>
           </motion.aside>
