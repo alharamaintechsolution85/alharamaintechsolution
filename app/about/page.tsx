@@ -17,7 +17,7 @@ export default function AboutPage() {
         <p className="page-lead">We help organizations make meaningful ideas useful through reliable software and thoughtful digital experiences.</p>
       </section>
       <section className="about-feature">
-        <div className="about-image"><Image src="/ahtchero.png" alt="Al Haramain Tech Solutions digital workspace" width={840} height={720} /></div>
+        <div className="about-image"><Image src="/1home.png.jpeg" alt="Al Haramain Tech Solutions digital workspace" width={840} height={720} /></div>
         <div className="about-copy">
           <p className="eyebrow">Our approach</p>
           <h2 className="section-title">Build the right thing, then build it well.</h2>

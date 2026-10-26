@@ -14,8 +14,8 @@ type ThemeState = {
 };
 
 const accentPresets = [
-  { name: 'Airy Cyan', value: '#06B6D4' },
-  { name: 'Warm Sand', value: '#C084FC' },
+  { name: 'Terracotta', value: '#C25E00' },
+  { name: 'Warm Gold', value: '#B45309' },
   { name: 'Sage Mint', value: '#10B981' },
   { name: 'Soft Rose', value: '#F43F5E' },
   { name: 'Slate', value: '#64748B' },
@@ -32,9 +32,9 @@ const fontPresets = [
 
 const defaultTheme: ThemeState = {
   mode: 'light',
-  accent: '#06B6D4',
+  accent: '#C25E00',
   font: 'Inter',
-  palette: 'Airy Cyan',
+  palette: 'Terracotta',
 };
 
 const hexToRgba = (hex: string, alpha: number) => {
@@ -77,11 +77,11 @@ function applyTheme(theme: ThemeState) {
   root.style.setProperty('--navy-soft', hexToRgba(theme.accent, 0.14));
   root.style.setProperty('--font-body', `${theme.font}, sans-serif`);
   root.style.setProperty('--font-display', `${theme.font}, sans-serif`);
-  root.style.setProperty('--page-bg', isLight ? '#f8fafc' : isBlend ? `color-mix(in srgb, ${theme.accent} 14%, #080b14)` : '#080b14');
-  root.style.setProperty('--page-surface', isLight ? 'rgba(255, 255, 255, 0.82)' : isBlend ? `color-mix(in srgb, ${theme.accent} 15%, #111827)` : 'rgba(18, 22, 35, 0.92)');
-  root.style.setProperty('--page-strong', isLight ? '#e0f2fe' : theme.accent);
-  root.style.setProperty('--text-primary', isLight ? '#0f172a' : '#f1f5f9');
-  root.style.setProperty('--text-muted', isLight ? '#475569' : '#a1aabd');
+  root.style.setProperty('--page-bg', isLight ? '#F7F7F8' : isBlend ? `color-mix(in srgb, ${theme.accent} 14%, #111827)` : '#111827');
+  root.style.setProperty('--page-surface', isLight ? 'rgba(255, 255, 255, 0.88)' : isBlend ? `color-mix(in srgb, ${theme.accent} 15%, #1f2937)` : 'rgba(17, 24, 39, 0.92)');
+  root.style.setProperty('--page-strong', isLight ? '#fef3c7' : theme.accent);
+  root.style.setProperty('--text-primary', isLight ? '#111827' : '#f1f5f9');
+  root.style.setProperty('--text-muted', isLight ? '#64748b' : '#a1aabd');
   root.style.setProperty('--border-color', isLight ? 'rgba(148, 163, 184, 0.24)' : hexToRgba(theme.accent, 0.2));
   root.style.setProperty('--heading-stack', isLight ? 'rgba(255, 255, 255, 0.76)' : 'rgba(18, 22, 35, 0.96)');
   root.style.setProperty('--shadow-soft', isLight ? '0 20px 60px rgba(15, 23, 42, 0.1)' : '0 20px 60px rgba(0, 0, 0, 0.28)');
@@ -117,6 +117,17 @@ export function ThemePanel() {
 
   return (
     <div className="theme-settings">
+      <button
+        type="button"
+        onClick={() => setTheme((prev) => ({ ...prev, mode: prev.mode === 'light' ? 'dark' : 'light' }))}
+        aria-label={`Switch to ${theme.mode === 'dark' ? 'light' : 'dark'} theme`}
+        aria-pressed={theme.mode === 'dark'}
+        className="theme-toggle"
+      >
+        {theme.mode === 'dark' ? <Moon size={15} /> : <Sun size={15} />}
+        <span>{theme.mode === 'dark' ? 'Dark' : 'Light'}</span>
+        <span className="theme-toggle-track" aria-hidden="true"><span /></span>
+      </button>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}

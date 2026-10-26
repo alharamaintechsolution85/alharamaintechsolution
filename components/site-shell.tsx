@@ -32,7 +32,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <header className="site-header">
+      <header className={`site-header${pathname === '/' ? ' site-header-home' : ''}`}>
         <nav className="site-nav" aria-label="Main navigation">
           <Link href="/" className="brand">
             <Image src="/ahtclogo.png" alt="" className="brand-logo" width={74} height={74} />
@@ -52,13 +52,17 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
                 {item.label}
               </Link>
             ))}
+            <div className="header-contact-details">
+              <a href="tel:+971557162816">UAE <span>+971 55 716 2816</span></a>
+              <a href="tel:+923074053281">Pakistan <span>+92 307 4053281</span></a>
+            </div>
             <button type="button" onClick={() => setContactOpen(true)} className="button-primary nav-cta">
               Start a project
             </button>
+            <ThemePanel />
           </div>
         </nav>
       </header>
-      <ThemePanel />
       {children}
       <footer className="site-footer">
         <div className="footer-inner">
@@ -82,8 +86,9 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
           <div className="footer-column">
             <h2>Contact</h2>
             <a href="tel:+971557162816"><Phone size={14} /> +971 55 716 2816</a>
-            <a href="tel:03245836382"><Phone size={14} /> 03245836382</a>
-            <a href="https://wa.me/971557162816" target="_blank" rel="noreferrer"><MessageCircle size={14} /> WhatsApp</a>
+            <a href="tel:+923074053281"><Phone size={14} /> +92 307 4053281</a>
+            <a href="https://wa.me/971557162816" target="_blank" rel="noopener noreferrer"><MessageCircle size={14} /> WhatsApp UAE</a>
+            <a href="https://wa.me/923074053281" target="_blank" rel="noopener noreferrer"><MessageCircle size={14} /> WhatsApp Pakistan</a>
             <a href="mailto:alharamaintechsolution@gmail.com"><Mail size={14} /> Email us</a>
           </div>
           <div className="footer-column footer-social-column">
@@ -92,7 +97,10 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
               <a href="https://www.tiktok.com/@al_haramain_techsolution?_r=1&_t=ZN-9AjdKqGy4ak" target="_blank" rel="noreferrer" aria-label="TikTok">
                 <TikTokIcon />
               </a>
-              <a href="https://wa.me/971557162816" target="_blank" rel="noreferrer" aria-label="WhatsApp">
+              <a href="https://wa.me/971557162816" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp UAE">
+                <MessageCircle size={17} />
+              </a>
+              <a href="https://wa.me/923074053281" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Pakistan">
                 <MessageCircle size={17} />
               </a>
               <a href="https://www.instagram.com/@_al_haramai_tech_solutions?srtk=M2ZmcWI5MjE3bTNq&utm_source=qr" target="_blank" rel="noreferrer" aria-label="Instagram">
@@ -117,7 +125,10 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         <a href="mailto:alharamaintechsolution@gmail.com" aria-label="Email Al Haramain Tech Solutions" title="Email us">
           <Mail size={19} />
         </a>
-        <a href="https://wa.me/971557162816" target="_blank" rel="noreferrer" aria-label="Chat on WhatsApp" title="WhatsApp">
+        <a href="https://wa.me/971557162816" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp UAE" title="WhatsApp UAE">
+          <MessageCircle size={19} />
+        </a>
+        <a href="https://wa.me/923074053281" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp Pakistan" title="WhatsApp Pakistan">
           <MessageCircle size={19} />
         </a>
         <a href="tel:+971557162816" aria-label="Call Al Haramain Tech Solutions" title="Call us">
@@ -155,9 +166,10 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
               </div>
               <div className="modal-contact-links">
                 <a href="mailto:alharamaintechsolution@gmail.com"><Mail size={15} /> Email us</a>
-                <a href="https://wa.me/971557162816" target="_blank" rel="noreferrer"><MessageCircle size={15} /> WhatsApp</a>
+                <a href="https://wa.me/971557162816" target="_blank" rel="noopener noreferrer"><MessageCircle size={15} /> WhatsApp UAE</a>
+                <a href="https://wa.me/923074053281" target="_blank" rel="noopener noreferrer"><MessageCircle size={15} /> WhatsApp Pakistan</a>
                 <a href="tel:+971557162816"><Phone size={15} /> +971 55 716 2816</a>
-                <a href="tel:03245836382"><Phone size={15} /> 03245836382</a>
+                <a href="tel:+923074053281"><Phone size={15} /> +92 307 4053281</a>
               </div>
             </motion.section>
           </motion.div>

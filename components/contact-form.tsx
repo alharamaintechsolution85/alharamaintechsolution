@@ -22,8 +22,10 @@ export function ContactForm({ onClose, compact = false }: ContactFormProps) {
     const message = `Name: ${name}\nEmail: ${email}\nProject details: ${details}`;
     const body = encodeURIComponent(message);
 
-    if (formData.get('channel') === 'whatsapp') {
-      window.open(`https://wa.me/971557162816?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+    const channel = formData.get('channel');
+    if (channel === 'whatsapp-uae' || channel === 'whatsapp-pakistan') {
+      const phone = channel === 'whatsapp-uae' ? '971557162816' : '923074053281';
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
     } else {
       window.location.href = `mailto:alharamaintechsolution@gmail.com?subject=${subject}&body=${body}`;
     }
@@ -75,7 +77,8 @@ export function ContactForm({ onClose, compact = false }: ContactFormProps) {
             Send via
             <select name="channel" className="form-control" defaultValue="email">
               <option value="email">Email</option>
-              <option value="whatsapp">WhatsApp</option>
+              <option value="whatsapp-uae">WhatsApp — UAE</option>
+              <option value="whatsapp-pakistan">WhatsApp — Pakistan</option>
             </select>
           </label>
           <button type="submit" className="button-primary mt-1">
@@ -84,9 +87,10 @@ export function ContactForm({ onClose, compact = false }: ContactFormProps) {
           {!compact ? (
             <div className="form-direct-links">
               <a href="mailto:alharamaintechsolution@gmail.com"><Mail size={15} /> Email</a>
-              <a href="https://wa.me/971557162816" target="_blank" rel="noreferrer"><MessageCircle size={15} /> WhatsApp</a>
+              <a href="https://wa.me/971557162816" target="_blank" rel="noopener noreferrer"><MessageCircle size={15} /> WhatsApp UAE</a>
+              <a href="https://wa.me/923074053281" target="_blank" rel="noopener noreferrer"><MessageCircle size={15} /> WhatsApp Pakistan</a>
               <a href="tel:+971557162816">Call UAE</a>
-              <a href="tel:03245836382">Call Pakistan</a>
+              <a href="tel:+923074053281">Call Pakistan</a>
             </div>
           ) : null}
         </motion.form>
